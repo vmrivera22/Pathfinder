@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <ctype.h>
 
 #define INDEX_Z 25
 
@@ -21,7 +22,7 @@ struct Graph* file_graph(char *input, bool directed){
     if(input){ // If the input argument is not null open the file and set fd to the FILE *.
         fp = fopen(input, "r+");
         if(fp == NULL){
-            fprintf(stdout, "Unable to open input file. Make sure the file exists and the path is correct.\n");
+            fprintf(stderr, "Unable to open input file. Make sure the file exists and the path is correct.\n");
             exit(1);
         }
     }
@@ -31,8 +32,18 @@ struct Graph* file_graph(char *input, bool directed){
     while(end_of_file > 0){
         end_of_file = fscanf(fp, "%c%c\n", src, dest); // Read 2 characters from the file at a time.
         if(end_of_file <= 0){
+            if(errno){
+                fprintf(stderr, "%s\n", strerror(errno));
+                exit(1);
+            }
             break;
         }
+        if(!isalpha(src[0]) || !isalpha(dest[0])){
+            fprintf(stderr, "Incorrect input format. Make sure all the verticies range from A to Z.\n");
+            exit(1);
+        }
+        src[0] = toupper(src[0]);
+        dest[0] = toupper(dest[0]);
         add_edge(g, (uint32_t)src[0], (uint32_t)dest[0], directed); // Add an edge between the two read in "nodes".
     }
     fclose(fp);

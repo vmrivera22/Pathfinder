@@ -24,7 +24,7 @@ void stack_delete(Stack *s)
 // Function to check if a stack is empty.
 bool stack_empty(Stack *s)
 {
-    if (s->capacity <= MINIMUM)
+    if (s->capacity < MINIMUM)
     {
         return false;
     }
