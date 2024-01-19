@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Function to initialize a stack.
 Stack *stack_create()
 {
     Stack *s = (Stack *)malloc(1 * sizeof(Stack));
@@ -13,12 +14,14 @@ Stack *stack_create()
     return s;
 }
 
+// Function to clear memory allocated to a stack.
 void stack_delete(Stack *s)
 {
     free(s->item);
     free(s);
 }
 
+// Function to check if a stack is empty.
 bool stack_empty(Stack *s)
 {
     if (s->capacity < 26)
@@ -31,10 +34,12 @@ bool stack_empty(Stack *s)
     }
 }
 
+// Function to the size of the stack.
 uint32_t stack_size(Stack *s){
     return s->top + 1;
 }
 
+// Function to add an item to the stack.
 bool stack_push(Stack *s, uint32_t item)
 {
     if (s->capacity <= 0)
@@ -47,6 +52,7 @@ bool stack_push(Stack *s, uint32_t item)
     return true;
 }
 
+// Function to remove an item from a stack.
 bool stack_pop(Stack *s, uint32_t *item)
 {
     if (stack_empty(s))
@@ -59,6 +65,7 @@ bool stack_pop(Stack *s, uint32_t *item)
     return true;
 }
 
+// Function to print the contents of a stack without popping.
 void stack_print(Stack *s)
 {
     for (int i = 0; i <= s->top; i++)
