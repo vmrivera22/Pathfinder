@@ -31,6 +31,10 @@ bool stack_empty(Stack *s)
     }
 }
 
+uint32_t stack_size(Stack *s){
+    return s->top + 1;
+}
+
 bool stack_push(Stack *s, uint32_t item)
 {
     if (s->capacity <= 0)
@@ -57,12 +61,13 @@ bool stack_pop(Stack *s, uint32_t *item)
 
 void stack_print(Stack *s)
 {
-    for (int i = s->top; i >= 0; i--)
+    for (int i = 0; i <= s->top; i++)
     {
-        printf("%u", s->item[i]);
-        if (i != 0)
+        printf("%c", (char)s->item[i]);
+        if (i != s->top)
         {
             printf("->");
         }
     }
+    printf("\n");
 }
