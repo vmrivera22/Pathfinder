@@ -12,23 +12,6 @@
 
 #define BUFF_SIZE 4096
 
-// Function returns the file descriptor of the newly created temp file containing STDIN data.
-int copy_stdin(){
-  int temp_file = open("temporary.txt",  O_RDWR | O_CREAT); // O_TMPFILE
-  uint8_t *file_out = (uint8_t *)calloc(4096, sizeof(uint8_t)); // Buffer to hold stdin input before writing to file.
-  int buffer_size = BUFF_SIZE;
-  int count = 0;
-  while((read(STDIN_FILENO, file_out, 1)) > 0){ // Read from stdin
-    count++;
-    write(temp_file, file_out, 1);
-    if(count == buffer_size){ // If the buffer is full then double its size.
-      buffer_size = buffer_size * 2;
-      file_out = (uint8_t *)realloc(file_out, buffer_size);
-    }
-  }
-  return temp_file;
-}
-
 int read_buffer(void *buffer, int byte_num, int infile){
     memset(buffer, '\0', byte_num);
     int t_bread = 0;
@@ -43,26 +26,15 @@ int read_buffer(void *buffer, int byte_num, int infile){
     return t_bread;
 }
 
-/*
-uint32_t *buffer = (uint32_t*)calloc(BUFF_SIZE+1, sizeof(uint32_t));
-    while(read_buffer(buffer, BUFF_SIZE, input_file) > 0){
-        //printf("%s", (char*)buffer);
-        char *token = strtok((char*)buffer, "\n\r");
-        while(token != NULL) {
-            printf("->%s\n", token);
-            token = strtok(NULL, "\n\r");
-        }
-
-    }
-    printf("\n");
-*/
-
-struct Graph* file_graph(char *input){
+struct Graph* file_graph(char *input, bool directed){
+    FILE *fp = stdin;
     struct Graph *g = graph_create();
-    FILE *fp = fopen(input, "r+");
-    if(fp == NULL){//input_file == -1){
-        fprintf(stdout, "Unable to open input file. Make sure the file exists and the path is correct.\n");
-        exit(1);
+    if(input){
+        fp = fopen(input, "r+");
+        if(fp == NULL){
+            fprintf(stdout, "Unable to open input file. Make sure the file exists and the path is correct.\n");
+            exit(1);
+        }
     }
     int end_of_file = 1;
     char a[2];
@@ -72,10 +44,13 @@ struct Graph* file_graph(char *input){
         if(end_of_file <= 0){
             break;
         }
-        add_edge(g, (uint32_t)a[0], (uint32_t)b[0], false);
+        printf("a\n");
+        add_edge(g, (uint32_t)a[0], (uint32_t)b[0], true);
+        printf("b\n");
     }
+    print_graph(g);
+    printf("\n");
     fclose(fp);
-    //print_graph(g);
     return g;
 }
 
@@ -94,19 +69,13 @@ void stack_search(Stack *s, struct Graph *g, uint32_t curr_node){
             g->visited[i] = 1;
             stack_push(s, i+65);
             stack_search(s, g, i);
-            uint32_t item; //= (uint32_t *)calloc(1, sizeof(uint32_t));
+            uint32_t item;
             stack_pop(s, &item);
             printf("ITEM: %c\n", (char)item);
             g->visited[item-65] = 0;       
         }
-    } // for all possible next node:
+    }
     return;
-
-
-    // push current node
-    // stack_search(next_node)
-    // path.pop()
-    // return
 }
 
 int main(int argc, char **argv)
@@ -114,8 +83,7 @@ int main(int argc, char **argv)
     int c;
     bool directed = false;
     bool print_matrix = false;
-    //uint32_t input_file = -2;
-    char *input;
+    char *input = NULL;
     while ((c = getopt(argc, argv, "udmi:")) != -1)
     {
         switch (c)
@@ -134,11 +102,13 @@ int main(int argc, char **argv)
             break;
         }
     }
-    //if(fp == NULL){//input_file == -2){
-        //input_file = copy_stdin();
+    //if(input == NULL){
+    //    input = copy_stdin();
     //}
-    struct Graph *g = file_graph(input);
+    struct Graph *g = file_graph(input, directed);
     Stack *stack = stack_create();
     stack_search(stack, g, 0);
+    graph_delete(g);
+    stack_delete(stack);
     return 0;
 }

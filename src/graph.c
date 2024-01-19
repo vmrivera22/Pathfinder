@@ -31,7 +31,7 @@ void graph_delete(struct Graph *g){
 void add_edge(struct Graph *g, uint32_t src, uint32_t dest, bool bi_directional){
     g->adjList[src-65][dest-65] = 1;
     if(bi_directional){
-        g->adjList[dest][src] = 1;
+        g->adjList[dest-65][src-65] = 1;
     }
     return;
 };
