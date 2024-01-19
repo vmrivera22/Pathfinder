@@ -3,12 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define GRAPH_SIZE 26
+#define ASCII_A 65
 
 struct Graph {
-    uint32_t numVertices;
-    uint32_t numEdges;
     uint32_t* visited;
-    uint32_t** adjList;
+    uint32_t** adj_list;
 };
 
 struct Graph* graph_create(void);

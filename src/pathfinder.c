@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-#define Z 25
+#define INDEX_Z 25
 
 // Function used to create a graph from the input file.
 // input: a character array containing the file to read from - if NULL then read from stdin.
@@ -26,14 +26,14 @@ struct Graph* file_graph(char *input, bool directed){
         }
     }
     int end_of_file = 1;
-    char a[2];
-    char b[2];
+    char src[2];
+    char dest[2];
     while(end_of_file > 0){
-        end_of_file = fscanf(fp, "%c%c\n", a, b); // Read 2 characters from the file at a time.
+        end_of_file = fscanf(fp, "%c%c\n", src, dest); // Read 2 characters from the file at a time.
         if(end_of_file <= 0){
             break;
         }
-        add_edge(g, (uint32_t)a[0], (uint32_t)b[0], true); // Add an edge between the two read in "nodes".
+        add_edge(g, (uint32_t)src[0], (uint32_t)dest[0], directed); // Add an edge between the two read in "nodes".
     }
     fclose(fp);
     return g;
@@ -43,25 +43,26 @@ struct Graph* file_graph(char *input, bool directed){
 // s: pointer to stack that will hold the current route.
 // g: pointer to the graph that was created using the input file or stdin.
 // curr_node: the index current row of the matrix i.e. the current "node".
-void stack_search(Stack *s, struct Graph *g, uint32_t curr_node){
-    if(curr_node == Z){ // If the current node is Z a path was found.
+// total_paths: keeps track of the number of paths found.
+void stack_search(Stack *s, struct Graph *g, uint32_t curr_node, uint32_t *total_paths){
+    if(curr_node == INDEX_Z){ // If the current node is Z a path was found.
         stack_print(s);
+        *total_paths += 1;
         return;
     }
 
-    for(int i = 0; i < GRAPH_SIZE; i++){ // Iterate through all possible edges of the current node.
-        if(g->adjList[curr_node][i] && !g->visited[i]){ // If there is a connection that we have not visited take it.
+    for(int next_node = 0; next_node < GRAPH_SIZE; next_node++){ // Iterate through all possible edges of the current node.
+        if(g->adj_list[curr_node][next_node] && !g->visited[next_node]){ // If there is a connection that we have not visited take it.
             if(stack_empty(s)){ // Initial push of "A" node.
-                stack_push(s, 65);
+                stack_push(s, ASCII_A);
                 g->visited[0] = 1;
             }
-            g->visited[i] = 1; // Mark the next node as visited.
-            stack_push(s, i+65); // Push the next node.
-            stack_search(s, g, i); // Recursivly check for connections to the next node.
+            g->visited[next_node] = 1; // Mark the next node as visited.
+            stack_push(s, next_node+ASCII_A); // Push the next node.
+            stack_search(s, g, next_node, total_paths); // Recursivly check for connections to the next node.
             uint32_t item;
             stack_pop(s, &item);
-            printf("ITEM: %c\n", (char)item);
-            g->visited[item-65] = 0; // Make the removed item from the stack unvisited.       
+            g->visited[item-ASCII_A] = 0; // Make the removed item from the stack unvisited.       
         }
     }
     return;
@@ -73,6 +74,7 @@ int main(int argc, char **argv)
     bool directed = false;
     bool print_matrix = false;
     char *input = NULL;
+    uint32_t total_paths = 0;
     while ((c = getopt(argc, argv, "udmi:")) != -1)
     {
         switch (c)
@@ -94,7 +96,9 @@ int main(int argc, char **argv)
 
     struct Graph *g = file_graph(input, directed); // Create the graph.
     Stack *stack = stack_create();
-    stack_search(stack, g, 0); // Find the paths from node "A" to node "Z" in the graph.
+    printf("\n");
+    stack_search(stack, g, 0, &total_paths); // Find the paths from node "A" to node "Z" in the graph.
+    printf("\nTotal Paths Found: %u\n\n", total_paths);
     
     // Clean up allocated memory.
     graph_delete(g);
