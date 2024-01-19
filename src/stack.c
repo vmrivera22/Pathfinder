@@ -54,7 +54,7 @@ bool stack_pop(Stack *s, uint32_t *item)
         return false;
     }
     s->capacity += 1;
-    item = &s->item[s->top];
+    *item = s->item[s->top];
     s->top -= 1;
     return true;
 }

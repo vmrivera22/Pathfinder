@@ -73,10 +73,9 @@ struct Graph* file_graph(char *input){
             break;
         }
         add_edge(g, (uint32_t)a[0], (uint32_t)b[0], false);
-        printf("%c %c **\n", a[0], b[0]);
     }
     fclose(fp);
-    print_graph(g);
+    //print_graph(g);
     return g;
 }
 
@@ -87,14 +86,18 @@ void stack_search(Stack *s, struct Graph *g, uint32_t curr_node){
     }
 
     for(int i = 0; i < GRAPH_SIZE; i++){
-        if(g->adjList[curr_node][i]){
+        if(g->adjList[curr_node][i] && !g->visited[i]){
             if(stack_empty(s)){
                 stack_push(s, 65);
+                g->visited[0] = 1;
             }
+            g->visited[i] = 1;
             stack_push(s, i+65);
             stack_search(s, g, i);
-            uint32_t *item;
-            stack_pop(s, item);
+            uint32_t item; //= (uint32_t *)calloc(1, sizeof(uint32_t));
+            stack_pop(s, &item);
+            printf("ITEM: %c\n", (char)item);
+            g->visited[item-65] = 0;       
         }
     } // for all possible next node:
     return;
