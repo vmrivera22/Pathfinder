@@ -16,7 +16,7 @@
 // Function used to create a graph from the input file.
 // input: a character array containing the file to read from - if NULL then read from stdin.
 // directed: indicates if the graph should be a directed or undirected graph.
-struct Graph* file_graph(char *input, bool directed){
+struct Graph* file_graph(char *input, bool directed, bool print_matrix){
     FILE *fp = stdin; // Set file pointer to stdin.
     struct Graph *g = graph_create();
     if(input){ // If the input argument is not null open the file and set fd to the FILE *.
@@ -47,6 +47,9 @@ struct Graph* file_graph(char *input, bool directed){
         add_edge(g, (uint32_t)src[0], (uint32_t)dest[0], directed); // Add an edge between the two read in "nodes".
     }
     fclose(fp);
+    if(print_matrix){
+        print_graph(g);
+    }
     return g;
 }
 
@@ -105,7 +108,7 @@ int main(int argc, char **argv)
         }
     }
 
-    struct Graph *g = file_graph(input, directed); // Create the graph.
+    struct Graph *g = file_graph(input, directed, print_matrix); // Create the graph.
     Stack *stack = stack_create();
     printf("\n");
     stack_search(stack, g, 0, &total_paths); // Find the paths from node "A" to node "Z" in the graph.

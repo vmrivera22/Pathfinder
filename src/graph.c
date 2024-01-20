@@ -31,9 +31,9 @@ void graph_delete(struct Graph *g){
 }
 
 // Function to add an edge between two "nodes".
-void add_edge(struct Graph *g, uint32_t src, uint32_t dest, bool bi_directional){
+void add_edge(struct Graph *g, uint32_t src, uint32_t dest, bool directed){
     g->adj_list[src-ASCII_A][dest-ASCII_A] = 1; // Set edge from src to dest.
-    if(bi_directional){
+    if(!directed){
         g->adj_list[dest-ASCII_A][src-ASCII_A] = 1; // Set edge from dest to src.
     }
     return;
@@ -41,12 +41,18 @@ void add_edge(struct Graph *g, uint32_t src, uint32_t dest, bool bi_directional)
 
 // Function to print a graph - for debug purposes.
 void print_graph(struct Graph *g){
+    printf("\n  A B C D E F G H I J K L M N O P Q R S T U V W X Y Z\n");
     for(int i = 0; i < GRAPH_SIZE; i++){
+        printf("%c ", (char)i+ASCII_A);
         for(int j = 0; j < GRAPH_SIZE; j++){
             if(g->adj_list[i][j]){ // Print nodes if there is an edge between them.
-                printf("[%c->%c]", (char)i+ASCII_A, (char)j+ASCII_A);
+                printf("%d ", 1);
+            }
+            else{
+                printf("%d ", 0);
             }
         }
+        printf("\n");
     }
     printf("\n");
 }
